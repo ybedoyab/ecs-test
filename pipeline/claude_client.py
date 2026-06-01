@@ -83,9 +83,10 @@ def _headers(api_key: str) -> dict:
     }
 
 
-def _apply_profile(body: dict, effort: str) -> dict:
+def _apply_profile(body: dict, effort: str, *, thinking: bool = True) -> dict:
     out = dict(body)
-    out["thinking"] = {"type": "adaptive"}
+    if thinking:
+        out["thinking"] = {"type": "adaptive"}
     out["output_config"] = {"effort": effort}
     return out
 
@@ -189,8 +190,9 @@ def _post_stream(
     label: str = "lab",
     effort: str = EFFORT_LAB,
     show: bool = True,
+    thinking: bool = True,
 ) -> str:
-    body = _apply_profile(body, effort)
+    body = _apply_profile(body, effort, thinking=thinking)
     body = {**body, "stream": True}
     payload = json.dumps(body)
     upload_mb = len(payload) / (1024 * 1024)
@@ -261,8 +263,8 @@ def _post_stream(
     return "".join(parts).strip()
 
 
-def _post_sync(api_key: str, body: dict, *, effort: str = EFFORT_LAB) -> str:
-    body = _apply_profile(body, effort)
+def _post_sync(api_key: str, body: dict, *, effort: str = EFFORT_LAB, thinking: bool = True) -> str:
+    body = _apply_profile(body, effort, thinking=thinking)
     payload = json.dumps(body)
     last_err: BaseException | None = None
     for attempt in range(1, MAX_RETRIES + 1):
@@ -293,7 +295,15 @@ def _post_sync(api_key: str, body: dict, *, effort: str = EFFORT_LAB) -> str:
     raise RuntimeError(f"Conexion SSL/red fallo tras {MAX_RETRIES} intentos: {last_err}") from last_err
 
 
-def text(api_key: str, system: str, user: str, max_tokens: int = 4096, stream: bool = True) -> str:
+def text(
+    api_key: str,
+    system: str,
+    user: str,
+    max_tokens: int = 4096,
+    stream: bool = True,
+    *,
+    thinking: bool = False,
+) -> str:
     body = {
         "model": MODEL,
         "max_tokens": max_tokens,
@@ -301,8 +311,10 @@ def text(api_key: str, system: str, user: str, max_tokens: int = 4096, stream: b
         "messages": [{"role": "user", "content": user}],
     }
     if stream:
-        return _post_stream(api_key, body, label="texto", effort=EFFORT_LAB)
-    return _post_sync(api_key, body, effort=EFFORT_LAB)
+        return _post_stream(
+            api_key, body, label="texto", effort=EFFORT_LAB, thinking=thinking
+        )
+    return _post_sync(api_key, body, effort=EFFORT_LAB, thinking=thinking)
 
 
 def chat(api_key: str, system: str, messages: list[dict], max_tokens: int = 4096, stream: bool = True) -> str:

@@ -66,7 +66,7 @@ def merge_section(existing: str, section: str, body: str) -> str:
             re.escape(start) + r"[\s\S]*?" + re.escape(end),
             re.MULTILINE,
         )
-        return pat.sub(block, existing)
+        return pat.sub(lambda _: block, existing, count=1)
     base = existing.rstrip()
     if base:
         return f"{base}\n\n{block}\n"
@@ -76,4 +76,11 @@ def merge_section(existing: str, section: str, body: str) -> str:
 def strip_code_fence(md: str) -> str:
     text = md.strip()
     m = re.match(r"^```(?:markdown|md)?\s*\n([\s\S]*?)\n```\s*$", text)
-    return m.group(1).strip() if m else text
+    if m:
+        return m.group(1).strip()
+    lines = text.splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip() == "```":
+        lines = lines[:-1]
+    return "\n".join(lines).strip()

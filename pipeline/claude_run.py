@@ -20,9 +20,11 @@ def _build_prompt(section: str) -> str:
         f"Prefijo de tarea: {meta['id_prefix']}\n\n"
         f"{extra}\n"
         f"Genera SOLO las tareas de {meta['title']}. Nada de otras secciones.\n"
+        f"Prioridad: valores literales del texto del lab en el mensaje del usuario. "
+        f"El conocimiento entrenado solo complementa sintaxis; no sustituye IPs, nombres, SQL ni capturas del PDF.\n"
     )
     if is_ready(section):
-        prompt += f"\n=== CONOCIMIENTO ENTRENADO ===\n{load_knowledge(section)}\n"
+        prompt += f"\n=== REFERENCIA (sintaxis) ===\n{load_knowledge(section)}\n"
     return prompt
 
 
@@ -52,13 +54,21 @@ def run(name: str, section: str | None = None) -> Path:
     print(f"\n--- {label} ({source.name}) ---", flush=True)
     lab_text = load_or_extract(source, lab, sec)
     user = (
-        "Contenido del lab (texto extraido del PDF, por paginas). "
-        "Genera el markdown de tareas segun el formato del system.\n\n"
+        "Texto extraido del PDF del lab (fuente oficial). "
+        "Genera TODAS las subtareas de la seccion con comandos/SQL/pasos de consola completos y listos para usar. "
+        "Extrae IPs, nombres ECS, flavors, rutas, SQL y nombres de captura del texto siguiente. "
+        "Placeholder solo para contrasenas o region equivalente no fijada.\n\n"
         f"{lab_text}"
     )
     md = strip_code_fence(
-        claude_client.text(ANTHROPIC_API_KEY, system, user, max_tokens=16384, stream=True)
+        claude_client.text(ANTHROPIC_API_KEY, system, user, max_tokens=32768, stream=True)
     )
+
+    if sec and "<!-- TASK:" not in md:
+        raise RuntimeError(
+            f"Respuesta vacia o sin tareas para {sec}. "
+            f"No se modifico answers/{lab}.md. Vuelve a ejecutar: python claude.py {lab} {sec}"
+        )
 
     if sec:
         existing = out.read_text(encoding="utf-8") if out.exists() else f"# {lab}\n"
