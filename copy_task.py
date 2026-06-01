@@ -19,7 +19,7 @@ def _print_steps(block) -> None:
     for n, step in enumerate(block.steps, 1):
         print(f"--- Paso {n} ---")
         if step.copy_text:
-            print("Comandos:")
+            print("Texto:")
             print(step.copy_text)
         if step.screenshot:
             print(f"Captura: {step.screenshot}")

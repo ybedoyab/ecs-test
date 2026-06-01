@@ -12,10 +12,12 @@ if _env.exists():
         os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 CURL_FILE = ROOT / "curl_comando.txt"
+TEST_OCR_PDF = ROOT / "test" / "Regional_2526_Lab_ocr.pdf"
 OUTPUT_DIR = ROOT / "output"
 SLIDES_DIR = OUTPUT_DIR / "_slides"
 TASKS_DIR = ROOT / "tasks"
 ANSWERS_DIR = ROOT / "answers"
+CONTEXT_DIR = ROOT / "context"
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 PROMPTS_DIR = ROOT / "prompts"

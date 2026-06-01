@@ -9,6 +9,7 @@ def resolve_pdf(name: str) -> Path | None:
         OUTPUT_DIR / f"{n}_small.pdf",
         OUTPUT_DIR / f"{n}_ocr.pdf",
         OUTPUT_DIR / f"{n}.pdf",
+        ROOT / "test" / "Regional_2526_Lab_ocr.pdf",
         ROOT / f"Regional_2526_Lab_ocr.pdf",
         ROOT / f"{n}_ocr.pdf",
         ROOT / f"{n}.pdf",

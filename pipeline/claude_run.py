@@ -2,6 +2,7 @@ from pathlib import Path
 
 from config import ANSWERS_DIR, ANTHROPIC_API_KEY, PROMPTS_DIR, answers_path
 from pipeline import claude_client
+from pipeline.context_store import is_ready, load_knowledge
 from pipeline.pdf_source import resolve_pdf
 from pipeline.sections import SECTIONS, merge_section, normalize_section, strip_code_fence
 
@@ -10,7 +11,7 @@ def _build_prompt(section: str) -> str:
     meta = SECTIONS[section]
     base = (PROMPTS_DIR / "claude_lab.md").read_text(encoding="utf-8")
     extra = (PROMPTS_DIR / f"claude_{section}.md").read_text(encoding="utf-8")
-    return (
+    prompt = (
         f"{base}\n\n"
         f"=== FILTRO DE SECCION: {meta['title']} ===\n"
         f"{meta['pdf_hint']}\n"
@@ -19,6 +20,9 @@ def _build_prompt(section: str) -> str:
         f"{extra}\n"
         f"Genera SOLO las tareas de {meta['title']}. Nada de otras secciones.\n"
     )
+    if is_ready(section):
+        prompt += f"\n=== CONOCIMIENTO ENTRENADO ===\n{load_knowledge(section)}\n"
+    return prompt
 
 
 def run(name: str, section: str | None = None) -> Path:

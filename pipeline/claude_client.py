@@ -37,6 +37,16 @@ def text(api_key: str, system: str, user: str, max_tokens: int = 4096) -> str:
     return _post(api_key, body)
 
 
+def chat(api_key: str, system: str, messages: list[dict], max_tokens: int = 4096) -> str:
+    body = {
+        "model": MODEL,
+        "max_tokens": max_tokens,
+        "system": system,
+        "messages": messages,
+    }
+    return _post(api_key, body)
+
+
 def pdf_markdown(api_key: str, system: str, pdf_path: Path) -> str:
     raw = pdf_path.read_bytes()
     b64 = base64.standard_b64encode(raw).decode("ascii")
