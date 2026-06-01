@@ -17,16 +17,16 @@ def _paths(name: str):
 
 
 def _resolve_lab(name: str) -> None:
-    print("\n=== Resolviendo lab (Claude) ===")
+    print("\n=== Generando respuestas del lab ===")
     if not ANTHROPIC_API_KEY:
         print("  Sin ANTHROPIC_API_KEY: salta generacion de answers/")
         return
     for section in SECTIONS:
-        print(f"  {section}...")
+        print(f"\n>> {section}", flush=True)
         try:
             claude_run.run(name, section)
         except Exception as e:
-            print(f"  [error] {section}: {e}")
+            print(f"\n[error] {section}: {e}", flush=True)
 
 
 def _print_next_steps(name: str) -> None:
@@ -42,6 +42,7 @@ def _print_next_steps(name: str) -> None:
 
 Respuestas: answers/{name}.md
 PDF: output/{name}_small.pdf
+Texto: output/{name}_extract.md
 """)
 
 

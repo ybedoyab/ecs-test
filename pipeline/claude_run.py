@@ -4,6 +4,7 @@ from config import ANSWERS_DIR, ANTHROPIC_API_KEY, PROMPTS_DIR, answers_path
 from pipeline import claude_client
 from pipeline.context_store import is_ready, load_knowledge
 from pipeline.pdf_source import resolve_pdf
+from pipeline.pdf_text import load_or_extract
 from pipeline.sections import SECTIONS, merge_section, normalize_section, strip_code_fence
 
 
@@ -48,8 +49,16 @@ def run(name: str, section: str | None = None) -> Path:
 
     system = _build_prompt(sec) if sec else (PROMPTS_DIR / "claude_lab.md").read_text(encoding="utf-8")
     label = f"{lab}/{sec}" if sec else lab
-    print(f"Claude: {source.name} -> {label}")
-    md = strip_code_fence(claude_client.pdf_markdown(ANTHROPIC_API_KEY, system, source))
+    print(f"\n--- {label} ({source.name}) ---", flush=True)
+    lab_text = load_or_extract(source, lab, sec)
+    user = (
+        "Contenido del lab (texto extraido del PDF, por paginas). "
+        "Genera el markdown de tareas segun el formato del system.\n\n"
+        f"{lab_text}"
+    )
+    md = strip_code_fence(
+        claude_client.text(ANTHROPIC_API_KEY, system, user, max_tokens=16384, stream=True)
+    )
 
     if sec:
         existing = out.read_text(encoding="utf-8") if out.exists() else f"# {lab}\n"

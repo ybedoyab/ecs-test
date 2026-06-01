@@ -35,6 +35,6 @@ Conocimiento pre-entrenado en `context/{seccion}/knowledge.md`. Va en el repo; n
 
 | Comando | Descripción |
 |---------|-------------|
-| `python claude.py regional_2526 openeuler` | Genera answers del lab PDF |
+| `python claude.py regional_2526 openeuler` | Genera answers (PDF → texto local → Claude, sin subir PDF) |
 | `python copy_task.py 1.1 regional_2526 --print` | Copia tarea |
 | `copy t1_1` | Atajo Windows |

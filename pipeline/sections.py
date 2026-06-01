@@ -44,6 +44,19 @@ def section_marker(section: str, end: bool = False) -> str:
     return f"<!-- {tag} -->"
 
 
+def extract_section(md: str, section: str) -> str | None:
+    start = section_marker(section)
+    end = section_marker(section, end=True)
+    if start not in md:
+        return None
+    pat = re.compile(
+        re.escape(start) + r"([\s\S]*?)" + re.escape(end),
+        re.MULTILINE,
+    )
+    m = pat.search(md)
+    return m.group(1).strip() if m else None
+
+
 def merge_section(existing: str, section: str, body: str) -> str:
     start = section_marker(section)
     end = section_marker(section, end=True)

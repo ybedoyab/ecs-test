@@ -2,3 +2,4 @@ Pillow
 PyMuPDF
 easyocr
 numpy
+requests
