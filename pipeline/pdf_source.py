@@ -22,4 +22,9 @@ def resolve_pdf(name: str) -> Path | None:
         seen.add(key)
         if p.is_file():
             return p
+    if "2526" in n:
+        for p in ROOT.glob("*2526*ocr*.pdf"):
+            return p
+        for p in ROOT.glob("*2526*Lab*.pdf"):
+            return p
     return None

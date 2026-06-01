@@ -22,6 +22,9 @@ class TaskBlock:
 def normalize_task_id(raw: str) -> str:
     s = raw.strip().lower().replace("-", "_").replace(".", "_")
     s = re.sub(r"^task", "", s)
+    m = re.match(r"^([tgk])(\d+)_(\d+)$", s)
+    if m:
+        return f"{m.group(1)}{m.group(2)}_{m.group(3)}"
     m = re.match(r"^t?(\d+)_(\d+)$", s)
     if m:
         return f"t{m.group(1)}_{m.group(2)}"
@@ -35,8 +38,10 @@ def screenshot_name(task_id: str, slug: str) -> str:
     slug = re.sub(r"^screenshot\s+", "", slug.strip(), flags=re.I)
     if re.match(r"^\d+-\d+-[\w]", slug):
         return slug
-    tid = normalize_task_id(task_id)
-    m = re.match(r"t(\d+)_(\d+)", tid)
+    m = re.match(r"^([tgk])(\d+)_(\d+)", task_id)
+    if m:
+        return f"{m.group(2)}-{m.group(3)}-{slug}" if not re.match(r"^\d+-\d+", slug) else slug
+    m = re.match(r"t(\d+)_(\d+)", task_id)
     if m:
         return f"{m.group(1)}-{m.group(2)}-{slug}"
     return slug
